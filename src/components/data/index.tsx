@@ -1,43 +1,176 @@
 import { DataTable } from "@/components/shared/data-table";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { userColumns } from "./column";
 import { FacetedFilter } from "../shared/faceted-filter";
 import SearchInput from "../shared/search-input";
 import { SharedPagination } from "../shared/shared-pagination";
-import { users } from "@/data/users";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetUsersQuery } from "@/store/api";
+import {
+  buildApiParams,
+  calculateTotalPages,
+  genderOptions,
+} from "@/utils/data";
+
 function DataComponent() {
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const TypeOptions = [
-    { label: "ALL GENDERS", value: "all" },
-    { label: "MALE", value: "male" },
-    { label: "FEMALE", value: "female" },
-  ];
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(["all"]);
+  const [query, setQuery] = useState<string>("");
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  const params = useMemo(
+    () => buildApiParams(query, selectedTypes, currentPage, pageSize),
+    [query, selectedTypes, currentPage, pageSize]
+  );
+
+  const { data, isLoading: loading, error } = useGetUsersQuery(params);
+
+  const totalPages = calculateTotalPages(data?.total || 0, pageSize);
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col md:flex-row md:justify-between">
+            <div className="font-bold text-xl text-primary">Users Data</div>
+            <div className="flex flex-row md:flex-row gap-4">
+              <div className="w-72">
+                <SearchInput placeholder="Search Users" />
+              </div>
+              <FacetedFilter
+                title="Gender"
+                options={genderOptions}
+                selectedValues={selectedTypes}
+                onChange={setSelectedTypes}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="rounded-md border" style={{ height: "33rem" }}>
+          <div className="h-full overflow-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-20" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-24" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-12" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-28" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-12" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: pageSize }).map((_, i) => (
+                  <tr key={i} className="border-b">
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-20" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-32" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-24" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-16" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-28" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-12" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-16" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <SharedPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="text-center">
+          <p className="text-red-500">
+            Error loading data:{" "}
+            {typeof error === "string" ? error : JSON.stringify(error)}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         <div className="flex flex-col md:flex-row md:justify-between">
-          <div className="font-bold text-xl text-primary"> Users Data</div>
+          <div className="font-bold text-xl text-primary">Users Data</div>
           <div className="flex flex-row md:flex-row gap-4">
             <div className="w-72">
-              <SearchInput placeholder="Search Users" />
+              <SearchInput
+                placeholder="Search Users"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setQuery(searchValue);
+                }}
+              />
             </div>
             <FacetedFilter
               title="Gender"
-              options={TypeOptions}
+              options={genderOptions}
               selectedValues={selectedTypes}
               onChange={setSelectedTypes}
             />
           </div>
         </div>
       </div>
-      <DataTable columns={userColumns} data={users} />
+      <DataTable
+        columns={userColumns}
+        data={data?.users || []}
+        height="33rem"
+      />
       <SharedPagination
-        currentPage={1}
-        totalPages={10}
-        pageSize={10}
-        onPageChange={() => {}}
-        onPageSizeChange={() => {}}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     </div>
   );
