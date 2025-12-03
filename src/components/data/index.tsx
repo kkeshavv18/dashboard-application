@@ -10,6 +10,7 @@ import { useGetUsersQuery } from "@/store/api";
 function DataComponent() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>(["all"]);
   const [query, setQuery] = useState<string>("");
+  const [searchValue, setSearchValue] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
@@ -92,6 +93,12 @@ function DataComponent() {
                   <th className="h-12 px-4 text-left align-middle font-medium">
                     <Skeleton className="h-4 w-28" />
                   </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-12" />
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -111,6 +118,12 @@ function DataComponent() {
                     </td>
                     <td className="p-4 align-middle">
                       <Skeleton className="h-4 w-28" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-12" />
+                    </td>
+                    <td className="p-4 align-middle">
+                      <Skeleton className="h-4 w-16" />
                     </td>
                   </tr>
                 ))}
@@ -133,7 +146,10 @@ function DataComponent() {
     return (
       <div className="flex flex-col gap-4">
         <div className="text-center">
-          <p className="text-red-500">Error loading data: {typeof error === 'string' ? error : JSON.stringify(error)}</p>
+          <p className="text-red-500">
+            Error loading data:{" "}
+            {typeof error === "string" ? error : JSON.stringify(error)}
+          </p>
         </div>
       </div>
     );
@@ -148,8 +164,11 @@ function DataComponent() {
             <div className="w-72">
               <SearchInput
                 placeholder="Search Users"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setQuery(searchValue);
+                }}
               />
             </div>
             <FacetedFilter
