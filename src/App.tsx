@@ -1,20 +1,23 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Data from "./pages/Data";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "./components/global/AppSidebar";
 
 function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-      <nav className="flex gap-4">
-        <Link to="/">Home</Link>
-        <Link to="/data">Data</Link>
-      </nav>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/data" element={<Data />} />
-      </Routes>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="w-full">
+        <SidebarTrigger className="m-4" />
+        <div className="p-4">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/data" element={<Data />} />
+          </Routes>
+        </div>
+      </main>
+    </SidebarProvider>
   );
 }
 
