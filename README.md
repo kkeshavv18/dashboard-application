@@ -61,8 +61,11 @@ A modern, responsive dashboard application built with React, TypeScript, and Vit
 
 3. **Environment Setup** (if needed)
 
-   - Copy `.env.example` to `.env` and configure API endpoints if required
-   - The app uses DummyJSON API by default for user data
+ Create a `.env` file:
+
+```env
+VITE_API_BASE_URL=https://dummyjson.com
+```
 
 4. **Start development server**
 
@@ -174,23 +177,6 @@ The data page offers powerful data management:
 - **Pagination**: Navigate through large datasets efficiently
 - **Responsive Design**: Table adapts to different screen sizes
 
-## 🚀 Deployment
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-The build artifacts will be stored in the `dist/` directory. You can serve them with any static hosting service.
-
-### Environment Variables
-
-Create a `.env` file for production configuration:
-
-```env
-VITE_API_BASE_URL=https://api.yourdomain.com
-```
 
 ## 🤝 Contributing
 
