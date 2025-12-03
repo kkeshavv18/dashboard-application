@@ -9,8 +9,8 @@ function App() {
     <SidebarProvider>
       <AppSidebar />
       <main className="w-full">
-        <SidebarTrigger className="m-4" />
-        <div className="p-4">
+        <SidebarTrigger className="m-1" />
+        <div className="p-2">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/data" element={<Data />} />

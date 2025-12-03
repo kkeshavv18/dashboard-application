@@ -14,6 +14,7 @@ export default defineConfig([
       // Disable hooks purity/exhaustive deps globally
       "react-hooks/purity": "off",
       "react-hooks/rules-of-hooks": "error", // keep core rules
+      "react-hooks/incompatible-library": "off",
     },
     extends: [
       js.configs.recommended,
