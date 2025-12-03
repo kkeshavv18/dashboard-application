@@ -5,7 +5,7 @@ import { FacetedFilter } from "../shared/faceted-filter";
 import SearchInput from "../shared/search-input";
 import { SharedPagination } from "../shared/shared-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUsers } from "@/hooks/useUsers";
+import { useGetUsersQuery } from "@/store/api";
 
 function DataComponent() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>(["all"]);
@@ -43,7 +43,7 @@ function DataComponent() {
     return p;
   }, [query, selectedTypes, currentPage, pageSize]);
 
-  const { data, loading, error } = useUsers(params);
+  const { data, isLoading: loading, error } = useGetUsersQuery(params);
 
   const totalPages = Math.ceil((data?.total || 0) / pageSize);
 
@@ -133,7 +133,7 @@ function DataComponent() {
     return (
       <div className="flex flex-col gap-4">
         <div className="text-center">
-          <p className="text-red-500">Error loading data: {error}</p>
+          <p className="text-red-500">Error loading data: {typeof error === 'string' ? error : JSON.stringify(error)}</p>
         </div>
       </div>
     );
