@@ -6,6 +6,11 @@ import SearchInput from "../shared/search-input";
 import { SharedPagination } from "../shared/shared-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetUsersQuery } from "@/store/api";
+import {
+  buildApiParams,
+  calculateTotalPages,
+  genderOptions,
+} from "@/utils/data";
 
 function DataComponent() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>(["all"]);
@@ -14,39 +19,14 @@ function DataComponent() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  const TypeOptions = [
-    { label: "ALL GENDERS", value: "all" },
-    { label: "MALE", value: "male" },
-    { label: "FEMALE", value: "female" },
-  ];
-
-  const params = useMemo(() => {
-    const p: Record<string, string | number> = {
-      limit: pageSize,
-      skip: (currentPage - 1) * pageSize,
-    };
-    if (query) p.q = query;
-    if (
-      selectedTypes.includes("male") &&
-      !selectedTypes.includes("female") &&
-      !selectedTypes.includes("all")
-    ) {
-      p.key = "gender";
-      p.value = "male";
-    } else if (
-      selectedTypes.includes("female") &&
-      !selectedTypes.includes("male") &&
-      !selectedTypes.includes("all")
-    ) {
-      p.key = "gender";
-      p.value = "female";
-    }
-    return p;
-  }, [query, selectedTypes, currentPage, pageSize]);
+  const params = useMemo(
+    () => buildApiParams(query, selectedTypes, currentPage, pageSize),
+    [query, selectedTypes, currentPage, pageSize]
+  );
 
   const { data, isLoading: loading, error } = useGetUsersQuery(params);
 
-  const totalPages = Math.ceil((data?.total || 0) / pageSize);
+  const totalPages = calculateTotalPages(data?.total || 0, pageSize);
 
   const handlePageChange = (page: number) => setCurrentPage(page);
   const handlePageSizeChange = (size: number) => {
@@ -66,7 +46,7 @@ function DataComponent() {
               </div>
               <FacetedFilter
                 title="Gender"
-                options={TypeOptions}
+                options={genderOptions}
                 selectedValues={selectedTypes}
                 onChange={setSelectedTypes}
               />
@@ -173,7 +153,7 @@ function DataComponent() {
             </div>
             <FacetedFilter
               title="Gender"
-              options={TypeOptions}
+              options={genderOptions}
               selectedValues={selectedTypes}
               onChange={setSelectedTypes}
             />
