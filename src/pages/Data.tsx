@@ -1,5 +1,11 @@
+import DataComponent from "@/components/data";
+
 const Data = () => {
-  return <div>Data</div>;
+  return (
+    <>
+      <DataComponent />
+    </>
+  );
 };
 
 export default Data;
