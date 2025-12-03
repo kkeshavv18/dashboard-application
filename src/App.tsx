@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
 import Data from "./pages/Data";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/global/AppSidebar";
+import Home from "./pages/Home";
 
 function App() {
   return (
