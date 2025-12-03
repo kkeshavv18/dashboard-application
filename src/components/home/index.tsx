@@ -16,9 +16,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { users } from "@/data/users";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useUsers } from "@/hooks/useUsers";
 
 const HomeComponent = () => {
+  const { data, loading, error } = useUsers({ limit: 100 });
+
+  const users = data?.users || [];
+
   // Calculate statistics from users data
   const totalUsers = users.length;
   const adminUsers = users.filter((user) => user.role === "admin").length;
@@ -26,7 +31,7 @@ const HomeComponent = () => {
     (user) => user.role === "moderator"
   ).length;
   const averageAge = Math.round(
-    users.reduce((sum, user) => sum + user.age, 0) / users.length
+    users.reduce((sum, user) => sum + user.age, 0) / users.length || 0
   );
 
   // Gender distribution
@@ -57,14 +62,119 @@ const HomeComponent = () => {
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
 
-  // Recent users (last 5)
-  const recentUsers = users.slice(-5).reverse();
+  // Recent users (last 5 by id)
+  const recentUsers = [...users].sort((a, b) => b.id - a.id).slice(0, 5);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Page Header Skeleton */}
+        <div className="space-y-1">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+
+        {/* Stats Cards Grid Skeleton */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-4" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16 mb-1" />
+                <Skeleton className="h-3 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content Grid Skeleton */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="col-span-4">
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <div>
+                        <Skeleton className="h-4 w-32 mb-1" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-3">
+            <CardHeader>
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-32" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-2 w-full" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Bottom Grid Skeleton */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-40" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <div key={j} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                      <Skeleton className="h-6 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <p className="text-red-500">Error loading data: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Page Header */}
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-primary">
           Dashboard Overview
         </h1>
         <p className="text-muted-foreground">
