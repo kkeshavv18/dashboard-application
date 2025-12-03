@@ -117,6 +117,9 @@
   body {
     @apply bg-background text-foreground text-lg;
   }
+  a, button {
+    cursor: pointer;
+  }
 }
 
 /* Hide scrollbars in WebKit-based browsers (Chrome, Safari, Edge) */
